@@ -1,0 +1,8 @@
+# sample /etc/network/interfaces
+
+iface telekom inet dhcp
+    wireless-essid Telekom
+    wireless-key off
+    wireless-channel auto
+    post-up /usr/local/sbin/hotspot.sh -f $IFACE
+    pre-down /usr/local/sbin/hotspot.sh -k

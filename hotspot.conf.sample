@@ -1,0 +1,15 @@
+# This file is in bourne shell syntax
+
+# username and password, mandatory
+USER='foo@t-mobile.de'
+PASS='paZZw0rd!'
+
+# a regular expression identifying the networks valid for the hotspot (optional)
+# ESSIDS="Telekom|Telekom_FlyNet|Telekom_ICE"
+
+# how often to refresh the login (optional, in seconds)
+# INTERVAL=300
+
+# the interface to monitor for essid changes (optional, but must be passed via
+# command line if omitted)
+# INTERFACE=wlan0
