@@ -42,7 +42,7 @@ login() {
         --data-urlencode "password@$p_file" \
         --data "strHinweis=Zahlungsbedingungen" \
         --data "strAGB=AGB" \
-    | grep -i "Sie sind online" > /dev/null
+    | grep -iF "Sie sind online" > /dev/null
     # ^- we can't use grep -q here as grep will close stdin on the first match and curl
     # complains with "curl: (23) Failed writing body (4012 != 8108)"
     rc="$?"
@@ -52,13 +52,13 @@ login() {
 
 logout() {
     curl -fsL https://hotspot.t-mobile.net/wlan/stop.do \
-    | grep -i "Sie haben sich ausgeloggt" > /dev/null
+    | grep -iF "Sie haben sich ausgeloggt" > /dev/null
     rc="$?"
     [ "$rc" -eq 0 ] && msg "Logged out"
     return "$rc"
 }
 
-if ! type printf | grep -q builtin; then
+if ! type printf | grep -qF builtin; then
     warn "printf does not appear to be a shell builtin. Your credentials my show up in the process list!"
 fi
 
