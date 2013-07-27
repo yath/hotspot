@@ -21,7 +21,7 @@ error() {
 }
 
 get_essid() {
-    iwconfig "$1" | perl -ne '/ESSID:\s*"?(.*?)\"/ and print $1'
+    iwconfig "$1" 2>/dev/null | perl -ne '/ESSID:\s*"?(.*?)\"/ and print $1'
 }
 
 is_valid_essid() {
@@ -129,7 +129,7 @@ if [ -e "$PIDFILE" ]; then
 fi
 
 if ! is_valid_essid "$INTERFACE"; then
-    error "ESSID $(get_essid "$INTERFACE") not valid for hotspot"
+    error "ESSID \"$(get_essid "$INTERFACE")\" on $INTERFACE not valid for hotspot"
 fi
 
 if ! login; then
