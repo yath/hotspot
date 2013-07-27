@@ -114,7 +114,7 @@ fi
 [ -z "$USER" ] && error "Need to set USER in $CONFIG"
 [ -z "$PASS" ] && error "Need to set PASS in $CONFIG"
 ESSIDS="${ESSIDS:-$DEFAULT_ESSIDS}"
-INTERFACE="${INTERFACE:-$1}"
+INTERFACE="${1:-$INTERFACE}"
 INTERVAL="${INTERVAL:-$DEFAULT_INTERVAL}"
 
 [ -z "$INTERFACE" ] && error "Need to pass an interface (either via INTERFACE= in $CONFIG or command line)"
