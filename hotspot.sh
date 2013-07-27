@@ -86,6 +86,10 @@ fi
 if [ "$PHASE" -a "$IFACE" ]; then
     ifupdown=1
     MSG_PREFIX="$TAG: "
+    if ! env | grep -q '^IF_HOTSPOT_'; then
+        # no hotspot-* option set, just exit
+        exit 0
+    fi
 fi
 
 if [ "$ifupdown" ]; then
