@@ -59,7 +59,7 @@ logout() {
 }
 
 if ! type printf | grep -qF builtin; then
-    warn "printf does not appear to be a shell builtin. Your credentials my show up in the process list!"
+    warn "printf does not appear to be a shell builtin. Your credentials may show up in the process list!"
 fi
 
 while [ "$#" -gt 0 ]; do
