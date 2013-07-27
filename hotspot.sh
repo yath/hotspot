@@ -6,9 +6,11 @@ PIDFILE=/var/run/hotspot.pid
 DEFAULT_ESSIDS="Telekom|Telekom_FlyNet|Telekom_ICE"
 DEFAULT_INTERVAL=300
 LOGGER=cat
+TAG="$(basename "$0")"
+TAG="${TAG%.*}"
 
 msg() {
-    echo "$@" | $LOGGER
+    echo "$MSG_PREFIX$@" | $LOGGER
 }
 
 warn() {
@@ -66,6 +68,7 @@ fi
 # check if we are being called from ifupdown
 if [ "$PHASE" -a "$IFACE" ]; then
     ifupdown=1
+    MSG_PREFIX="$TAG: "
 fi
 
 if [ "$ifupdown" ]; then
@@ -194,8 +197,7 @@ loop() {
 }
 
 if [ "$dofork" ]; then
-    TAG="$(basename "$0")"
-    TAG="${TAG%.*}"
+    MSG_PREFIX=
     LOGGER="logger -t $TAG"
     loop &
     echo $! > "$PIDFILE"
