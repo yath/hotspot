@@ -197,6 +197,7 @@ loop() {
 }
 
 if [ "$dofork" ]; then
+    msg "Backgrounding for refresh every $INTERVAL seconds"
     MSG_PREFIX=
     LOGGER="logger -t $TAG"
     loop &
