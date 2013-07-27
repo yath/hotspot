@@ -18,3 +18,15 @@ Caveats
   hotspot). You may adjust the list of valid ESSIDS in the configuration file.
 - By default, the script will re-login every five minutes to prevent the "idle timeout" catching. This may
   be adjusted in the config as well.
+
+ifupdown integration
+--------------------
+You may link this script to /etc/network/if-up.d/ and /etc/network/if-down.d/. This provides the following
+interface options to ifupdown:
+- hotspot-username <username> [mandatory]
+- hotspot-password <password> [mandatory]
+- hotspot-interval <interval> [optional]
+- hotspot-essids <essids> [optional, falls back to wireless-essid if unset]
+
+These correspond to the appropriate items in the configuration file, which is not needed when called
+via ifupdown.

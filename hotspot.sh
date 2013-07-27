@@ -58,36 +58,57 @@ logout() {
     return "$rc"
 }
 
+# sanity check
 if ! type printf | grep -qF builtin; then
     warn "printf does not appear to be a shell builtin. Your credentials may show up in the process list!"
 fi
 
-while [ "$#" -gt 0 ]; do
-    case "$1" in
-        -f)
+# check if we are being called from ifupdown
+if [ "$PHASE" -a "$IFACE" ]; then
+    ifupdown=1
+fi
+
+if [ "$ifupdown" ]; then
+    case "$PHASE" in
+        post-up)
             dofork=1
-            shift
             ;;
-        -l)
+        pre-down)
             dologout=1
             dokill=1
-            shift
-            ;;
-        -k)
-            dokill=1
-            shift
-            ;;
-        -*)
-            error "Unrecognized option $1"
             ;;
         *)
-            break
+            error "$0 not valid for ifupdown phase $PHASE"
             ;;
     esac
-done
+else
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            -f)
+                dofork=1
+                shift
+                ;;
+            -l)
+                dologout=1
+                dokill=1
+                shift
+                ;;
+            -k)
+                dokill=1
+                shift
+                ;;
+            -*)
+                error "Unrecognized option $1"
+                ;;
+            *)
+                break
+                ;;
+        esac
+    done
 
-if [ "$2" ]; then
-    error "Interface must be last argument"
+    if [ "$2" ]; then
+        error "Interface must be last argument"
+    fi
 fi
 
 if [ "$dologout" ]; then
@@ -103,21 +124,40 @@ if [ "$dokill" ]; then
 fi
 
 if [ ! -r "$CONFIG" ]; then
-    error "Unable to read $CONFIG, aborting."
+    [ "$ifupdown" ] || error "Unable to read $CONFIG, aborting."
+else
+    if stat -L -c '%a' "$CONFIG" | grep -qE '[^0]$'; then
+        warn "Warning: $CONFIG is world-readable!"
+    fi
+    . "$CONFIG"
 fi
-. "$CONFIG"
 
-if stat -L -c '%a' "$CONFIG" | grep -qE '[^0]$'; then
-    warn "Warning: $CONFIG is world-readable!"
+
+# overrides from ifupdown
+if [ "$ifupdown" ]; then
+    USER=${IF_HOTSPOT_USERNAME:-$USER}
+    PASS=${IF_HOTSPOT_PASSWORD:-$PASS}
+    INTERVAL=${IF_HOTSPOT_INTERVAL:-$INTERVAL}
+    if [ "$IF_HOTSPOT_ESSIDS" ]; then
+        ESSIDS="$IF_HOTSPOT_ESSIDS"
+    elif [ "$IF_WIRELESS_ESSID" ]; then # trust the user if she set an essid via wireless-tools
+        ESSIDS="$IF_WIRELESS_ESSID"
+    fi
+    [ "$IFACE" ] || error "Huh, called from ifupdown but \$IFACE is unset?"
+    INTERFACE="$IFACE"
+    setwhere="in /etc/network/interfaces"
+else
+    INTERFACE="${1:-$INTERFACE}"
+    [ -z "$INTERFACE" ] && error "Need to pass an interface (either via INTERFACE= in $CONFIG or command line)"
+    setwhere="in $CONFIG"
 fi
 
-[ -z "$USER" ] && error "Need to set USER in $CONFIG"
-[ -z "$PASS" ] && error "Need to set PASS in $CONFIG"
+[ -z "$USER" ] && error "Need to set username $setwhere"
+[ -z "$PASS" ] && error "Need to set password $setwhere"
+
+# defaults
 ESSIDS="${ESSIDS:-$DEFAULT_ESSIDS}"
-INTERFACE="${1:-$INTERFACE}"
 INTERVAL="${INTERVAL:-$DEFAULT_INTERVAL}"
-
-[ -z "$INTERFACE" ] && error "Need to pass an interface (either via INTERFACE= in $CONFIG or command line)"
 
 if [ -e "$PIDFILE" ]; then
     if [ ! -d /proc/"$(cat "$PIDFILE")" ]; then

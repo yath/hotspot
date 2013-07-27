@@ -6,3 +6,13 @@ iface telekom inet dhcp
     wireless-channel auto
     post-up /usr/local/sbin/hotspot.sh -f $IFACE
     pre-down /usr/local/sbin/hotspot.sh -k
+
+# If you link the hotspot script to /etc/network/if-up.d
+# and /etc/network/if-down.d you may omit the configuration
+# file and use the following syntax:
+iface telekom_ice inet dhcp
+    wireless-essid Telekom_ICE
+    wireless-key off
+    wireless-channel auto
+    hotspot-username foo@t-mobile.de
+    hotspot-password paZZw0rd!
