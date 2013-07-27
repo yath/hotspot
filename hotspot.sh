@@ -28,19 +28,35 @@ is_valid_essid() {
     get_essid "$1" | grep -qE "^$ESSIDS\$"
 }
 
-urlescape() {
-    echo "$1" | perl -pe 's/[^a-zA-Z0-9\r\n]/sprintf("%%%02x", ord $&)/ge'
-}
-
 login() {
-    # XXX
-    wget -qO- 'https://hotspot.t-mobile.net/wlan/index.do?username='"$(urlescape "$USER")"'&password='"$(urlescape "$PASS")"'&strHinweis=Zahlungsbedingungen&strAGB=AGB' | \
-    grep -qi "Sie sind online"
+    u_file=$(tempfile)
+    chmod 600 "$u_file"
+    printf '%s' "$USER" > "$u_file"
+
+    p_file=$(tempfile)
+    chmod 600 "$p_file"
+    printf '%s' "$PASS" > "$p_file"
+
+    curl -fsL 'https://hotspot.t-mobile.net/wlan/index.do' \
+        --data-urlencode "username@$u_file" \
+        --data-urlencode "password@$p_file" \
+        --data "strHinweis=Zahlungsbedingungen" \
+        --data "strAGB=AGB" \
+    | grep -i "Sie sind online" > /dev/null
+    # ^- we can't use grep -q here as grep will close stdin on the first match and curl
+    # complains with "curl: (23) Failed writing body (4012 != 8108)"
+    rc="$?"
+    rm -f "$u_file" "$p_file"
+    return "$rc"
 }
 
 logout() {
     curl http://logout./ && msg "Logged out"
 }
+
+if ! type printf | grep -q builtin; then
+    warn "printf does not appear to be a shell builtin. Your credentials my show up in the process list!"
+fi
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
