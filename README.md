@@ -10,7 +10,7 @@ Usage
   into the configuration file)
 - Pass '-f' to fork into the background after initial registration
 - Pass '-k' to kill the running background process
-- Pass '-l' to log out and kill the running background process (This is currently broken)
+- Pass '-l' to log out and kill the running background process
 
 Caveats
 -------

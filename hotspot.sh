@@ -51,7 +51,11 @@ login() {
 }
 
 logout() {
-    curl http://logout./ && msg "Logged out"
+    curl -fsL https://hotspot.t-mobile.net/wlan/stop.do \
+    | grep -i "Sie haben sich ausgeloggt" > /dev/null
+    rc="$?"
+    [ "$rc" -eq 0 ] && msg "Logged out"
+    return "$rc"
 }
 
 if ! type printf | grep -q builtin; then
